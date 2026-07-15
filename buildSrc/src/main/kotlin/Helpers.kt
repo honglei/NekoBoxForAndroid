@@ -36,11 +36,15 @@ fun Project.requireLocalProperties(): Properties {
 
 fun Project.setupCommon() {
     android.apply {
-        buildToolsVersion = "36.0.0"
-        compileSdk = 37
+        buildToolsVersion = "36.1.0"
+        compileSdk {
+            version = release(36) {
+                minorApiLevel = 1
+            }
+        }
         defaultConfig {
             minSdk = 23
-            targetSdk = 37
+            targetSdk = 36
         }
         buildTypes {
             getByName("release") {
