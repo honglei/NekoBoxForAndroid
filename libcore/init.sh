@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source ../buildScript/lib/core/get_source_env.sh
+
 chmod -R 777 .build 2>/dev/null
 rm -rf .build 2>/dev/null
 
@@ -9,9 +11,9 @@ fi
 
 # Install gomobile
 if [ ! -f "$GOPATH/bin/gomobile-matsuri" ]; then
-    git clone https://github.com/MatsuriDayo/gomobile.git
+    git clone "$REPOSITORY_GOMOBILE"
     pushd gomobile
-	git checkout origin/master2
+	git checkout "$COMMIT_GOMOBILE"
     pushd cmd
     pushd gomobile
     go install -v
