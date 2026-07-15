@@ -5,6 +5,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcel
 import android.os.Parcelable
 import android.view.Menu
 import android.view.MenuItem
@@ -40,7 +41,6 @@ import io.nekohasekai.sagernet.fmt.AbstractBean
 import io.nekohasekai.sagernet.ktx.*
 import io.nekohasekai.sagernet.ui.ThemedActivity
 import io.nekohasekai.sagernet.widget.ListListener
-import kotlinx.parcelize.Parcelize
 import kotlin.properties.Delegates
 
 @Suppress("UNCHECKED_CAST")
@@ -63,8 +63,23 @@ abstract class ProfileSettingsActivity<T : AbstractBean>(
         }
     }
 
-    @Parcelize
-    data class ProfileIdArg(val profileId: Long, val groupId: Long) : Parcelable
+    data class ProfileIdArg(val profileId: Long, val groupId: Long) : Parcelable {
+        override fun describeContents() = 0
+
+        override fun writeToParcel(dest: Parcel, flags: Int) {
+            dest.writeLong(profileId)
+            dest.writeLong(groupId)
+        }
+
+        companion object CREATOR : Parcelable.Creator<ProfileIdArg> {
+            override fun createFromParcel(source: Parcel) = ProfileIdArg(
+                source.readLong(),
+                source.readLong(),
+            )
+
+            override fun newArray(size: Int) = arrayOfNulls<ProfileIdArg>(size)
+        }
+    }
     class DeleteConfirmationDialogFragment : AlertDialogFragment<ProfileIdArg, Empty>() {
         override fun AlertDialog.Builder.prepare(listener: DialogInterface.OnClickListener) {
             setTitle(R.string.delete_confirm_prompt)

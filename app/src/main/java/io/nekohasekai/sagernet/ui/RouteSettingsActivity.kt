@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.os.Parcel
 import android.os.Parcelable
 import android.view.Menu
 import android.view.MenuItem
@@ -38,7 +39,6 @@ import io.nekohasekai.sagernet.utils.PackageCache
 import io.nekohasekai.sagernet.widget.AppListPreference
 import io.nekohasekai.sagernet.widget.ListListener
 import io.nekohasekai.sagernet.widget.OutboundPreference
-import kotlinx.parcelize.Parcelize
 import moe.matsuri.nb4a.ui.EditConfigPreference
 
 @Suppress("UNCHECKED_CAST")
@@ -193,8 +193,17 @@ class RouteSettingsActivity(
         }
     }
 
-    @Parcelize
-    data class ProfileIdArg(val ruleId: Long) : Parcelable
+    data class ProfileIdArg(val ruleId: Long) : Parcelable {
+        override fun describeContents() = 0
+
+        override fun writeToParcel(dest: Parcel, flags: Int) = dest.writeLong(ruleId)
+
+        companion object CREATOR : Parcelable.Creator<ProfileIdArg> {
+            override fun createFromParcel(source: Parcel) = ProfileIdArg(source.readLong())
+
+            override fun newArray(size: Int) = arrayOfNulls<ProfileIdArg>(size)
+        }
+    }
     class DeleteConfirmationDialogFragment : AlertDialogFragment<ProfileIdArg, Empty>() {
         override fun AlertDialog.Builder.prepare(listener: DialogInterface.OnClickListener) {
             setTitle(R.string.delete_route_prompt)

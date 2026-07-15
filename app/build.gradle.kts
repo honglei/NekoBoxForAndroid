@@ -3,7 +3,6 @@
 plugins {
     id("com.android.application")
     id("com.google.devtools.ksp")
-    id("org.jetbrains.kotlin.plugin.parcelize")
 }
 
 setupApp()
@@ -41,7 +40,6 @@ dependencies {
 
     implementation(fileTree("libs"))
 
-    implementation("org.jetbrains.kotlin:kotlin-parcelize-runtime:2.3.21")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0")
     implementation("androidx.core:core-ktx:1.18.0")
     implementation("androidx.recyclerview:recyclerview:1.4.0")

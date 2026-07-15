@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.os.Parcel
 import android.os.Parcelable
 import android.view.Menu
 import android.view.MenuItem
@@ -29,7 +30,6 @@ import io.nekohasekai.sagernet.ktx.onMainDispatcher
 import io.nekohasekai.sagernet.ktx.runOnDefaultDispatcher
 import io.nekohasekai.sagernet.widget.ListListener
 import io.nekohasekai.sagernet.widget.OutboundPreference
-import kotlinx.parcelize.Parcelize
 import moe.matsuri.nb4a.ui.SimpleMenuPreference
 
 @Suppress("UNCHECKED_CAST")
@@ -177,8 +177,17 @@ class GroupSettingsActivity(
         }
     }
 
-    @Parcelize
-    data class GroupIdArg(val groupId: Long) : Parcelable
+    data class GroupIdArg(val groupId: Long) : Parcelable {
+        override fun describeContents() = 0
+
+        override fun writeToParcel(dest: Parcel, flags: Int) = dest.writeLong(groupId)
+
+        companion object CREATOR : Parcelable.Creator<GroupIdArg> {
+            override fun createFromParcel(source: Parcel) = GroupIdArg(source.readLong())
+
+            override fun newArray(size: Int) = arrayOfNulls<GroupIdArg>(size)
+        }
+    }
     class DeleteConfirmationDialogFragment : AlertDialogFragment<GroupIdArg, Empty>() {
         override fun AlertDialog.Builder.prepare(listener: DialogInterface.OnClickListener) {
             setTitle(R.string.delete_group_prompt)
