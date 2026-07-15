@@ -300,7 +300,7 @@ class BackupFragment : NamedFragment(R.layout.layout_backup) {
                 val parcel = Parcel.obtain()
                 parcel.unmarshall(data, 0, data.size)
                 parcel.setDataPosition(0)
-                rules.add(ParcelizeBridge.createRule(parcel))
+                rules.add(ParcelizeBridge.create(parcel, RuleEntity.CREATOR))
                 parcel.recycle()
             }
             SagerDatabase.rulesDao.reset()
