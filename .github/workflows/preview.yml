@@ -26,6 +26,9 @@ jobs:
         with:
           go-version: '1.26.5'
           cache-dependency-path: libcore/go.sum
+      - name: Set up Android SDK
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: android-actions/setup-android@v4
       - name: Install Android NDK
         if: steps.cache.outputs.cache-hit != 'true'
         run: sdkmanager 'ndk;29.0.14206865'
