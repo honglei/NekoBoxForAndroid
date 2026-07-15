@@ -135,13 +135,13 @@ jobs:
           arch: x86_64
           target: google_apis
           disable-animations: true
-          script: |
-            APK=$(find artifacts -name '*x86_64*.apk' -print -quit)
-            test -n "$APK"
-            adb install "$APK"
-            adb shell am start -W -n moe.nb4a/io.nekohasekai.sagernet.ui.MainActivity
-            sleep 5
-            adb shell pidof moe.nb4a
+          script: >-
+            APK=$(find artifacts -name '*x86_64*.apk' -print -quit) &&
+            test -n "$APK" &&
+            adb install "$APK" &&
+            adb shell am start -W -n moe.nb4a/io.nekohasekai.sagernet.ui.MainActivity &&
+            sleep 5 &&
+            adb shell pidof moe.nb4a &&
             adb shell dumpsys package moe.nb4a | grep -E 'versionName|targetSdk'
   publish:
     name: Publish Release
