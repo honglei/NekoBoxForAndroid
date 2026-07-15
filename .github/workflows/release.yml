@@ -30,7 +30,7 @@ jobs:
         uses: actions/cache@v6.1.0
         with:
           path: app/libs/libcore.aar
-          key: ${{ runner.os }}-libcore-${{ hashFiles('buildScript/**', 'libcore/**') }}
+          key: ${{ runner.os }}-libcore-${{ hashFiles('run', 'buildScript/init/env.sh', 'buildScript/lib/core.sh', 'buildScript/lib/core/**', 'libcore/**') }}
       - name: Set up Java
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/setup-java@v5.5.0
