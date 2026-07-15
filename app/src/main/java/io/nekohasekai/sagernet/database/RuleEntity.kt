@@ -8,7 +8,10 @@ import kotlinx.parcelize.Parcelize
 
 @Entity(tableName = "rules")
 @Parcelize
-@TypeConverters(StringCollectionConverter::class)
+@TypeConverters(
+    StringCollectionConverter::class,
+    builtInTypeConverters = BuiltInTypeConverters()
+)
 data class RuleEntity(
     @PrimaryKey(autoGenerate = true) var id: Long = 0L,
     var name: String = "",

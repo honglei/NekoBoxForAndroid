@@ -1,6 +1,7 @@
 package io.nekohasekai.sagernet.database
 
 import androidx.room.AutoMigration
+import androidx.room.BuiltInTypeConverters
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -23,7 +24,10 @@ import kotlinx.coroutines.launch
         AutoMigration(from = 5, to = 6)
     ]
 )
-@TypeConverters(value = [KryoConverters::class, GsonConverters::class])
+@TypeConverters(
+    value = [KryoConverters::class, GsonConverters::class],
+    builtInTypeConverters = BuiltInTypeConverters()
+)
 @GenerateRoomMigrations
 abstract class SagerDatabase : RoomDatabase() {
 
