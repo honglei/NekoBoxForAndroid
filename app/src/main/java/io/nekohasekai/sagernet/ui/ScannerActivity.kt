@@ -17,7 +17,6 @@ import com.google.zxing.Result
 import com.king.camera.scan.AnalyzeResult
 import com.king.camera.scan.BaseCameraScan
 import com.king.camera.scan.CameraScan
-import com.king.camera.scan.util.LogUtils
 import com.king.camera.scan.util.PermissionUtils
 import com.king.zxing.analyze.QRCodeAnalyzer
 import com.king.zxing.util.CodeUtils
@@ -169,7 +168,7 @@ class ScannerActivity : ThemedActivity(),
         if (PermissionUtils.checkPermission(this, Manifest.permission.CAMERA)) {
             cameraScan.startCamera()
         } else {
-            LogUtils.d("checkPermissionResult != PERMISSION_GRANTED")
+            Logs.d("checkPermissionResult != PERMISSION_GRANTED")
             PermissionUtils.requestPermission(
                 this, Manifest.permission.CAMERA, CAMERA_PERMISSION_REQUEST_CODE
             )

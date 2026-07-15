@@ -3,6 +3,7 @@
 plugins {
     id("com.android.application")
     id("com.google.devtools.ksp")
+    id("androidx.room")
 }
 
 setupApp()
@@ -10,10 +11,6 @@ setupApp()
 android {
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
-    }
-    ksp {
-        arg("room.incremental", "true")
-        arg("room.schemaLocation", "$projectDir/schemas")
     }
     bundle {
         language {
@@ -34,6 +31,10 @@ android {
     androidResources {
         generateLocaleConfig = true
     }
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 dependencies {
@@ -81,4 +82,6 @@ dependencies {
     implementation("androidx.room:room-ktx:2.8.4")
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+
+    testImplementation("junit:junit:4.13.2")
 }

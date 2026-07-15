@@ -81,7 +81,7 @@ jobs:
         run: |
           echo "sdk.dir=${ANDROID_HOME}" > local.properties
           ./run init action gradle
-          ./gradlew app:assemblePreviewRelease
+          ./gradlew app:testPreviewDebugUnitTest app:lintPreviewRelease app:assemblePreviewRelease
           ARM64_APK=$(find app/build/outputs/apk -name '*arm64-v8a*.apk' -print -quit)
           test -n "$ARM64_APK"
           "${ANDROID_HOME}/build-tools/36.1.0/apksigner" verify --verbose --print-certs "$ARM64_APK"
@@ -120,10 +120,18 @@ jobs:
           target: google_apis
           disable-animations: true
           script: >-
+            EXPECTED_VERSION=$(sed -n 's/^VERSION_NAME=//p' nb4a.properties) &&
             APK=$(find artifacts -name '*x86_64*.apk' -print -quit) &&
+            test -n "$EXPECTED_VERSION" &&
             test -n "$APK" &&
+            test "$(adb shell getprop ro.build.version.sdk | tr -d '\r')" = "33" &&
             adb install "$APK" &&
-            adb shell am start -W -n moe.nb4a/io.nekohasekai.sagernet.ui.MainActivity &&
+            adb shell am force-stop moe.nb4a &&
+            LAUNCH_OUTPUT=$(adb shell am start -W -n moe.nb4a/io.nekohasekai.sagernet.ui.MainActivity) &&
+            printf '%s\n' "$LAUNCH_OUTPUT" &&
+            printf '%s\n' "$LAUNCH_OUTPUT" | grep -F 'Status: ok' &&
             sleep 5 &&
-            adb shell pidof moe.nb4a &&
-            adb shell dumpsys package moe.nb4a | grep -E 'versionName|targetSdk'
+            test -n "$(adb shell pidof moe.nb4a | tr -d '\r')" &&
+            PACKAGE_INFO=$(adb shell dumpsys package moe.nb4a) &&
+            printf '%s\n' "$PACKAGE_INFO" | grep -F "versionName=$EXPECTED_VERSION" &&
+            printf '%s\n' "$PACKAGE_INFO" | grep -F 'targetSdk=36'
