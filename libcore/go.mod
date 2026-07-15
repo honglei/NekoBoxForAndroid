@@ -13,10 +13,12 @@ require (
 	github.com/sagernet/sing-box v1.0.0 // replaced
 	github.com/sagernet/sing-tun v0.8.11
 	github.com/ulikunitz/xz v0.5.15
-	golang.org/x/mobile v0.0.0-20260709172247-6129f5bee9d5
+	golang.org/x/mobile v0.0.0
 	golang.org/x/sys v0.47.0
 )
 
 replace github.com/matsuridayo/libneko => ../../libneko
 
 replace github.com/sagernet/sing-box => ../../sing-box
+
+replace golang.org/x/mobile => ./gomobile
