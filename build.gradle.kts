@@ -9,4 +9,5 @@ tasks.register<Delete>("clean") {
 
 plugins {
     id("com.google.devtools.ksp") version "2.3.10" apply false
+    id("org.jetbrains.kotlin.plugin.parcelize") version "2.3.21" apply false
 }

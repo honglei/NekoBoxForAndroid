@@ -3,7 +3,7 @@
 plugins {
     id("com.android.application")
     id("com.google.devtools.ksp")
-    id("kotlin-parcelize")
+    id("org.jetbrains.kotlin.plugin.parcelize")
 }
 
 setupApp()
