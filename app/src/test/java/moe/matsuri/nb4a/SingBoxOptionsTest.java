@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -55,5 +56,37 @@ public class SingBoxOptionsTest {
         assertEquals("direct", result.get("type"));
         assertEquals("merged", result.get("tag"));
         assertEquals("ipv4_only", result.get("domain_strategy"));
+    }
+
+    @Test
+    public void serializesModernTunAddressWithoutLegacyFields() {
+        SingBoxOptions.Inbound_TunOptions inbound = new SingBoxOptions.Inbound_TunOptions();
+        inbound.type = "tun";
+        inbound.tag = "tun-in";
+        inbound.address = Arrays.asList("172.19.0.1/28", "fdfe:dcba:9876::1/126");
+
+        Map<String, Object> result = inbound.asMap();
+
+        assertEquals(inbound.address, result.get("address"));
+        assertFalse(result.containsKey("inet4_address"));
+        assertFalse(result.containsKey("inet6_address"));
+        assertFalse(result.containsKey("endpoint_independent_nat"));
+        assertFalse(result.containsKey("sniff"));
+        assertFalse(result.containsKey("sniff_override_destination"));
+        assertFalse(result.containsKey("domain_strategy"));
+    }
+
+    @Test
+    public void serializesModernInboundRuleActions() {
+        SingBoxOptions.Rule_DefaultOptions resolve = new SingBoxOptions.Rule_DefaultOptions();
+        resolve.inbound = Arrays.asList("tun-in", "mixed-in");
+        resolve.action = "resolve";
+        resolve.strategy = "prefer_ipv4";
+
+        Map<String, Object> result = resolve.asMap();
+
+        assertEquals(resolve.inbound, result.get("inbound"));
+        assertEquals("resolve", result.get("action"));
+        assertEquals("prefer_ipv4", result.get("strategy"));
     }
 }
