@@ -1,0 +1,43 @@
+From 60e46b0af327b02e9ee2a6eec9dc06cd9e4bb6e8 Mon Sep 17 00:00:00 2001
+From: armv9 <48624112+arm64v8a@users.noreply.github.com>
+Date: Sun, 23 Feb 2025 21:40:09 +0900
+Subject: [PATCH 5/6] dialer: add DoNotSelectInterface
+
+---
+ common/dialer/default.go | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/common/dialer/default.go b/common/dialer/default.go
+index ccdfbafbb..5256fe8d0 100644
+--- a/common/dialer/default.go
++++ b/common/dialer/default.go
+@@ -22,6 +22,8 @@ import (
+ 	"github.com/database64128/tfo-go/v2"
+ )
+ 
++var DoNotSelectInterface = false
++
+ var (
+ 	_ ParallelInterfaceDialer = (*DefaultDialer)(nil)
+ 	_ WireGuardListener       = (*DefaultDialer)(nil)
+@@ -249,7 +251,7 @@ func (d *DefaultDialer) DialContext(ctx context.Context, network string, address
+ 	} else if address.IsDomain() {
+ 		return nil, E.New("domain not resolved")
+ 	}
+-	if d.networkStrategy == nil {
++	if DoNotSelectInterface || d.networkStrategy == nil {
+ 		return d.trackConn(listener.ListenNetworkNamespace[net.Conn](d.netns, func() (net.Conn, error) {
+ 			switch N.NetworkName(network) {
+ 			case N.NetworkUDP:
+@@ -319,7 +321,7 @@ func (d *DefaultDialer) DialParallelInterface(ctx context.Context, network strin
+ }
+ 
+ func (d *DefaultDialer) ListenPacket(ctx context.Context, destination M.Socksaddr) (net.PacketConn, error) {
+-	if d.networkStrategy == nil {
++	if DoNotSelectInterface || d.networkStrategy == nil {
+ 		return d.trackPacketConn(listener.ListenNetworkNamespace[net.PacketConn](d.netns, func() (net.PacketConn, error) {
+ 			listenConfig := d.udpListener
+ 			if d.autoDetectBindFunc != nil && destination.Addr.IsValid() {
+-- 
+2.43.0
+

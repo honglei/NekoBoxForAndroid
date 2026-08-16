@@ -1,0 +1,29 @@
+From f1e280c415348431454b210199a84c3a50f76e5c Mon Sep 17 00:00:00 2001
+From: armv9 <48624112+arm64v8a@users.noreply.github.com>
+Date: Wed, 26 Feb 2025 12:43:33 +0900
+Subject: [PATCH 1/6] fix needCacheFile
+
+---
+ box.go | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/box.go b/box.go
+index c88a9bc9a..61a2fbdb6 100644
+--- a/box.go
++++ b/box.go
+@@ -131,10 +131,10 @@ func New(options Options) (*Box, error) {
+ 	var needCacheFile bool
+ 	var needClashAPI bool
+ 	var needV2RayAPI bool
+-	if experimentalOptions.CacheFile != nil && experimentalOptions.CacheFile.Enabled || options.PlatformLogWriter != nil {
++	if experimentalOptions.CacheFile != nil && experimentalOptions.CacheFile.Enabled {
+ 		needCacheFile = true
+ 	}
+-	if experimentalOptions.ClashAPI != nil || options.PlatformLogWriter != nil {
++	if experimentalOptions.ClashAPI != nil {
+ 		needClashAPI = true
+ 	}
+ 	if experimentalOptions.V2RayAPI != nil && experimentalOptions.V2RayAPI.Listen != "" {
+-- 
+2.43.0
+

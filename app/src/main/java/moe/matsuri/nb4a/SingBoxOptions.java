@@ -113,6 +113,8 @@ public class SingBoxOptions {
 
         public List<SingBoxOption> outbounds;
 
+        public List<SingBoxOption> endpoints;
+
         public RouteOptions route;
 
         public ExperimentalOptions experimental;
@@ -3913,6 +3915,52 @@ public class SingBoxOptions {
         public Integer mtu;
 
         public String network;
+
+    }
+
+    public static class Endpoint_WireGuardOptions extends Outbound {
+
+        // Generate note: nested type DialerOptions
+        public String detour;
+
+        public String bind_interface;
+
+        public String protect_path;
+
+        public Boolean tcp_fast_open;
+
+        public String domain_strategy;
+
+        public Boolean system;
+
+        public String name;
+
+        public List<String> address;
+
+        public String private_key;
+
+        public List<EndpointWireGuardPeer> peers;
+
+        public Integer workers;
+
+        public Integer mtu;
+
+    }
+
+    public static class EndpointWireGuardPeer extends SingBoxOption {
+
+        public String address;
+
+        public Integer port;
+
+        public String public_key;
+
+        public String pre_shared_key;
+
+        public List<String> allowed_ips;
+
+        // Generate note: Base64 String
+        public String reserved;
 
     }
 

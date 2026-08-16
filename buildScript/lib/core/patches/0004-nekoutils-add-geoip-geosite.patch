@@ -1,0 +1,68 @@
+From 46d231b796199635ae40e6f1fa382661bea4b5b5 Mon Sep 17 00:00:00 2001
+From: armv9 <48624112+arm64v8a@users.noreply.github.com>
+Date: Wed, 26 Feb 2025 12:43:48 +0900
+Subject: [PATCH 4/6] nekoutils: add geoip geosite
+
+---
+ nekoutils/srs.go             |  7 +++++++
+ route/rule/rule_set_local.go | 23 +++++++++++++++++++++++
+ 2 files changed, 30 insertions(+)
+ create mode 100644 nekoutils/srs.go
+
+diff --git a/nekoutils/srs.go b/nekoutils/srs.go
+new file mode 100644
+index 000000000..a86df58a7
+--- /dev/null
++++ b/nekoutils/srs.go
+@@ -0,0 +1,7 @@
++package nekoutils
++
++import "github.com/sagernet/sing-box/option"
++
++var GetGeoIPHeadlessRules func(name string) ([]option.HeadlessRule, error)
++
++var GetGeoSiteHeadlessRules func(name string) ([]option.HeadlessRule, error)
+diff --git a/route/rule/rule_set_local.go b/route/rule/rule_set_local.go
+index ee19cc452..d713ef346 100644
+--- a/route/rule/rule_set_local.go
++++ b/route/rule/rule_set_local.go
+@@ -12,6 +12,7 @@ import (
+ 	"github.com/sagernet/sing-box/adapter"
+ 	"github.com/sagernet/sing-box/common/srs"
+ 	C "github.com/sagernet/sing-box/constant"
++	"github.com/sagernet/sing-box/nekoutils"
+ 	"github.com/sagernet/sing-box/option"
+ 	"github.com/sagernet/sing/common"
+ 	E "github.com/sagernet/sing/common/exceptions"
+@@ -55,6 +56,28 @@ func NewLocalRuleSet(ctx context.Context, logger logger.Logger, options option.R
+ 			return nil, err
+ 		}
+ 	} else {
++		if strings.HasPrefix(options.LocalOptions.Path, "geoip:") {
++			rules, err := nekoutils.GetGeoIPHeadlessRules(strings.TrimPrefix(options.LocalOptions.Path, "geoip:"))
++			if err != nil {
++				return nil, err
++			}
++			err = ruleSet.reloadRules(rules)
++			if err != nil {
++				return nil, err
++			}
++			return ruleSet, nil
++		}
++		if strings.HasPrefix(options.LocalOptions.Path, "geosite:") {
++			rules, err := nekoutils.GetGeoSiteHeadlessRules(strings.TrimPrefix(options.LocalOptions.Path, "geosite:"))
++			if err != nil {
++				return nil, err
++			}
++			err = ruleSet.reloadRules(rules)
++			if err != nil {
++				return nil, err
++			}
++			return ruleSet, nil
++		}
+ 		filePath := filemanager.BasePath(ctx, options.LocalOptions.Path)
+ 		filePath, _ = filepath.Abs(filePath)
+ 		err := ruleSet.reloadFile(filePath)
+-- 
+2.43.0
+
