@@ -141,7 +141,6 @@ fun buildConfig(
     val enableDnsRouting = DataStore.enableDnsRouting
     val useFakeDns = DataStore.enableFakeDns && !forTest
     val needSniff = DataStore.trafficSniffing > 0
-    val needSniffOverride = DataStore.trafficSniffing == 2
     val externalIndexMap = ArrayList<IndexEntity>()
     val ipv6Mode = if (forTest) IPv6Mode.ENABLE else DataStore.ipv6Mode
 
@@ -206,21 +205,20 @@ fun buildConfig(
                 }
                 endpoint_independent_nat = true
                 mtu = DataStore.mtu
-                domain_strategy = genDomainStrategy(DataStore.resolveDestination)
-                sniff = needSniff
-                sniff_override_destination = needSniffOverride
                 when (ipv6Mode) {
                     IPv6Mode.DISABLE -> {
-                        inet4_address = listOf(VpnService.PRIVATE_VLAN4_CLIENT + "/28")
+                        address = listOf(VpnService.PRIVATE_VLAN4_CLIENT + "/28")
                     }
 
                     IPv6Mode.ONLY -> {
-                        inet6_address = listOf(VpnService.PRIVATE_VLAN6_CLIENT + "/126")
+                        address = listOf(VpnService.PRIVATE_VLAN6_CLIENT + "/126")
                     }
 
                     else -> {
-                        inet4_address = listOf(VpnService.PRIVATE_VLAN4_CLIENT + "/28")
-                        inet6_address = listOf(VpnService.PRIVATE_VLAN6_CLIENT + "/126")
+                        address = listOf(
+                            VpnService.PRIVATE_VLAN4_CLIENT + "/28",
+                            VpnService.PRIVATE_VLAN6_CLIENT + "/126",
+                        )
                     }
                 }
             })
@@ -229,9 +227,6 @@ fun buildConfig(
                 tag = TAG_MIXED
                 listen = bind
                 listen_port = DataStore.mixedPort
-                domain_strategy = genDomainStrategy(DataStore.resolveDestination)
-                sniff = needSniff
-                sniff_override_destination = needSniffOverride
             })
         }
 
@@ -740,6 +735,30 @@ fun buildConfig(
                     makeSingBoxRule(domainListDNSDirectForce.toHashSet().toList())
                     server = "dns-direct"
                 })
+            }
+        }
+
+        // sing-box 1.13 removed legacy inbound sniff and domain strategy fields.
+        // Keep these actions ahead of the routing rules they affect.
+        if (!forTest) {
+            val inboundTags = buildList {
+                if (isVPN) add("tun-in")
+                add(TAG_MIXED)
+            }
+            inboundTags.asReversed().forEach { inboundTag ->
+                if (needSniff) {
+                    route.rules.add(0, Rule_DefaultOptions().apply {
+                        inbound = listOf(inboundTag)
+                        action = "sniff"
+                    })
+                }
+                if (DataStore.resolveDestination) {
+                    route.rules.add(0, Rule_DefaultOptions().apply {
+                        inbound = listOf(inboundTag)
+                        action = "resolve"
+                        strategy = genDomainStrategy(true)
+                    })
+                }
             }
         }
 
