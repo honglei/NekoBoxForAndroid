@@ -79,6 +79,9 @@ class SagerNet : Application(),
         }
 
         if (isMainProcess) {
+            if (DataStore.trafficSniffing == 2) {
+                DataStore.trafficSniffing = 1
+            }
             Theme.apply(this)
             Theme.applyNightTheme()
             runOnDefaultDispatcher {
