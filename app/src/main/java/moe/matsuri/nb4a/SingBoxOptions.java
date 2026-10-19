@@ -12,6 +12,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -322,8 +323,6 @@ public class SingBoxOptions {
 
         public Boolean reverse_mapping;
 
-        public DNSFakeIPOptions fakeip;
-
         // Generate note: nested type DNSClientOptions
         public String strategy;
 
@@ -339,20 +338,60 @@ public class SingBoxOptions {
 
     public static class DNSServerOptions extends SingBoxOption {
 
+        public String type;
         public String tag;
-
-        public String address;
-
-        public String address_resolver;
-
-        public String address_strategy;
-
-        public Long address_fallback_delay;
-
-        public String strategy;
-
+        public String server;
+        public Integer server_port;
+        public String path;
+        public String domain_resolver;
         public String detour;
+        public String inet4_range;
+        public String inet6_range;
 
+        public static DNSServerOptions fromAddress(String address, String tag,
+                                                    String detour, String resolver) {
+            DNSServerOptions options = new DNSServerOptions();
+            options.tag = tag;
+            options.detour = detour;
+            options.domain_resolver = resolver;
+            if ("local".equals(address)) {
+                options.type = "local";
+                return options;
+            }
+            String uriAddress = address;
+            if (!address.contains("://")) {
+                if (address.indexOf(':') != address.lastIndexOf(':') && !address.startsWith("[")) {
+                    uriAddress = "[" + address + "]";
+                }
+                uriAddress = "udp://" + uriAddress;
+            }
+            URI uri = URI.create(uriAddress);
+            options.type = uri.getScheme();
+            switch (options.type) {
+                case "udp": case "tcp": case "tls": case "quic": case "https": case "h3":
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported DNS transport: " + options.type);
+            }
+            options.server = uri.getHost();
+            if (options.server == null || uri.getUserInfo() != null || uri.getFragment() != null) {
+                throw new IllegalArgumentException("Invalid DNS server address");
+            }
+            if (options.server.startsWith("[")) {
+                options.server = options.server.substring(1, options.server.length() - 1);
+            }
+            if (uri.getPort() > 65535 || uri.getPort() == 0) {
+                throw new IllegalArgumentException("Invalid DNS server port");
+            }
+            if (uri.getPort() != -1) options.server_port = uri.getPort();
+            if ("https".equals(options.type) || "h3".equals(options.type)) {
+                options.path = uri.getRawPath();
+                if (uri.getRawQuery() != null) options.path += "?" + uri.getRawQuery();
+            } else if ((uri.getRawPath() != null && !uri.getRawPath().isEmpty()) || uri.getRawQuery() != null) {
+                throw new IllegalArgumentException("DNS transport does not support a URL path");
+            }
+            return options;
+        }
     }
 
     public static class DNSClientOptions extends SingBoxOption {
@@ -364,16 +403,6 @@ public class SingBoxOptions {
         public Boolean disable_expire;
 
         public Boolean independent_cache;
-
-    }
-
-    public static class DNSFakeIPOptions extends SingBoxOption {
-
-        public Boolean enabled;
-
-        public String inet4_range;
-
-        public String inet6_range;
 
     }
 
@@ -1064,6 +1093,8 @@ public class SingBoxOptions {
         public String final_;
 
         public Boolean find_process;
+
+        public String default_domain_resolver;
 
         public Boolean auto_detect_interface;
 
@@ -4588,6 +4619,12 @@ public class SingBoxOptions {
         public String clash_mode;
 
         public Boolean invert;
+
+        public String action;
+
+        public String rcode;
+
+        public String strategy;
 
         public String server;
 

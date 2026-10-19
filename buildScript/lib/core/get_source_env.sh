@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 export REPOSITORY_SING_BOX="https://github.com/honglei/sing-box.git"
-export COMMIT_SING_BOX="1be1c8575127adf7bd19360b7973fae6cb8b2879"
+export COMMIT_SING_BOX="f0b80be85ebbeed5d06e62678ca89bf547847a67"
 export REPOSITORY_LIBNEKO="https://github.com/MatsuriDayo/libneko.git"
 export COMMIT_LIBNEKO="1c47a3af71990a7b2192e03292b4d246c308ef0b"
 export REPOSITORY_GOMOBILE="https://github.com/MatsuriDayo/gomobile.git"

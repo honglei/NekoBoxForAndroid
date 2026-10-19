@@ -1,6 +1,7 @@
 package libcore
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -25,7 +26,7 @@ type boxPlatformInterfaceWrapper struct {
 	interfaceAddress []netip.Addr
 }
 
-func (w *boxPlatformInterfaceWrapper) ReadWIFIState() adapter.WIFIState {
+func (w *boxPlatformInterfaceWrapper) ReadWIFIState(ctx context.Context) adapter.WIFIState {
 	state := strings.SplitN(intfBox.WIFIState(), ",", 2)
 	if len(state) != 2 {
 		return adapter.WIFIState{}
@@ -196,6 +197,72 @@ func (w *boxPlatformInterfaceWrapper) FindConnectionOwner(request *adapter.FindC
 		packageNames = []string{packageName}
 	}
 	return &adapter.ConnectionOwner{UserId: uid, AndroidPackageNames: packageNames}, nil
+}
+
+// sing-box v1.14.x PlatformInterface additions. NekoBox Android does not
+// implement the new platform capabilities (TUN option passthrough, neighbor
+// resolver, shell/SSH/SFTP, bridge); the stubs keep the interface satisfied
+// while explicitly disabling every feature so existing Android behavior is
+// unchanged.
+
+func (w *boxPlatformInterfaceWrapper) ProcessPlatformOptions(options option.TunPlatformOptions) error {
+	// Android TUN is driven entirely through intfBox.OpenTun; the extra
+	// platform options are not used. Accept them and ignore.
+	return nil
+}
+
+func (w *boxPlatformInterfaceWrapper) CancelNotification(identifier string, typeID int32) error {
+	// Notifications are not sent on Android (UsePlatformNotification = false);
+	// cancellation is a no-op.
+	return nil
+}
+
+func (w *boxPlatformInterfaceWrapper) UsePlatformNeighborResolver() bool {
+	return false
+}
+
+func (w *boxPlatformInterfaceWrapper) StartNeighborMonitor(listener adapter.NeighborUpdateListener) error {
+	return E.New("android: neighbor resolver is not supported")
+}
+
+func (w *boxPlatformInterfaceWrapper) CloseNeighborMonitor(listener adapter.NeighborUpdateListener) error {
+	return E.New("android: neighbor resolver is not supported")
+}
+
+func (w *boxPlatformInterfaceWrapper) UsePlatformShell() bool {
+	return false
+}
+
+func (w *boxPlatformInterfaceWrapper) CheckPlatformShell() error {
+	return E.New("android: shell is not supported")
+}
+
+func (w *boxPlatformInterfaceWrapper) OpenShellSession(user *adapter.PlatformUser, command string, env []string, term string, rows int32, cols int32) (adapter.ShellSession, error) {
+	return nil, E.New("android: shell is not supported")
+}
+
+func (w *boxPlatformInterfaceWrapper) LookupUser(username string) (*adapter.PlatformUser, error) {
+	return nil, E.New("android: shell is not supported")
+}
+
+func (w *boxPlatformInterfaceWrapper) LookupSFTPServer() (string, error) {
+	return "", E.New("android: sftp is not supported")
+}
+
+func (w *boxPlatformInterfaceWrapper) ReadSystemSSHHostKey() ([]byte, error) {
+	return nil, E.New("android: shell is not supported")
+}
+
+func (w *boxPlatformInterfaceWrapper) TailscaleHostname() string {
+	return ""
+}
+
+func (w *boxPlatformInterfaceWrapper) UsePlatformBridge() bool {
+	return false
+}
+
+func (w *boxPlatformInterfaceWrapper) CreateBridge(options adapter.BridgeOptions) (adapter.BridgeSession, error) {
+	return nil, E.New("android: bridge is not supported")
 }
 
 // io.Writer

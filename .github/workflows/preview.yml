@@ -64,7 +64,7 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4.0.1
       - name: Install Android SDK packages
-        run: sdkmanager 'platforms;android-36.1' 'build-tools;36.1.0'
+        run: sdkmanager 'platforms;android-37.0' 'build-tools;36.1.0'
       - name: Restore signing keystore
         env:
           SIGNING_KEY_BASE64: ${{ secrets.SIGNING_KEY_BASE64 }}

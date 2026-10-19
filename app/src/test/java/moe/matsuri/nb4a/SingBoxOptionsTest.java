@@ -89,4 +89,63 @@ public class SingBoxOptionsTest {
         assertEquals("resolve", result.get("action"));
         assertEquals("prefer_ipv4", result.get("strategy"));
     }
+    @Test
+    public void convertsDnsAddressesToNativeTransports() {
+        SingBoxOptions.DNSServerOptions udp = SingBoxOptions.DNSServerOptions.fromAddress(
+                "1.1.1.1:5353", "direct", null, "local");
+        assertEquals("udp", udp.type);
+        assertEquals("1.1.1.1", udp.server);
+        assertEquals(Integer.valueOf(5353), udp.server_port);
+        assertEquals("local", udp.domain_resolver);
+        assertFalse(udp.asMap().containsKey("address"));
+        assertFalse(udp.asMap().containsKey("address_resolver"));
+        assertFalse(udp.asMap().containsKey("detour"));
+        SingBoxOptions.DNSServerOptions https = SingBoxOptions.DNSServerOptions.fromAddress(
+                "https://dns.example:8443/custom-query?x=1", "remote", "proxy", "direct");
+        assertEquals("https", https.type);
+        assertEquals("dns.example", https.server);
+        assertEquals(Integer.valueOf(8443), https.server_port);
+        assertEquals("/custom-query?x=1", https.path);
+        assertEquals("proxy", https.detour);
+    }
+
+    @Test
+    public void convertsIpv6AndLocalDnsAddresses() {
+        for (String address : Arrays.asList("2001:db8::1", "[2001:db8::1]", "udp://[2001:db8::1]")) {
+            SingBoxOptions.DNSServerOptions options = SingBoxOptions.DNSServerOptions.fromAddress(
+                    address, "test", "direct", null);
+            assertEquals("udp", options.type);
+            assertEquals("2001:db8::1", options.server);
+        }
+        SingBoxOptions.DNSServerOptions local = SingBoxOptions.DNSServerOptions.fromAddress(
+                "local", "test", "direct", null);
+        assertEquals("local", local.type);
+        assertFalse(local.asMap().containsKey("server"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void rejectsUnsupportedDnsTransport() {
+        SingBoxOptions.DNSServerOptions.fromAddress("invalid://dns.example", "test", null, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void rejectsInvalidDnsPort() {
+        SingBoxOptions.DNSServerOptions.fromAddress("tcp://dns.example:65536", "test", null, null);
+    }
+
+    @Test
+    public void serializesNativeFakeDnsAndBlockAction() {
+        SingBoxOptions.DNSServerOptions fake = new SingBoxOptions.DNSServerOptions();
+        fake.type = "fakeip";
+        fake.tag = "dns-fake";
+        fake.inet4_range = "198.18.0.0/15";
+        assertEquals("fakeip", fake.asMap().get("type"));
+        assertFalse(fake.asMap().containsKey("address"));
+        SingBoxOptions.DNSRule_DefaultOptions rule = new SingBoxOptions.DNSRule_DefaultOptions();
+        rule.action = "predefined";
+        rule.rcode = "NOERROR";
+        assertEquals("NOERROR", rule.asMap().get("rcode"));
+        assertFalse(rule.asMap().containsKey("server"));
+    }
+
 }

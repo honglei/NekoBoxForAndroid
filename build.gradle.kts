@@ -9,5 +9,5 @@ tasks.register<Delete>("clean") {
 
 plugins {
     id("com.google.devtools.ksp") version "2.3.10" apply false
-    id("androidx.room") version "2.8.4" apply false
+    id("androidx.room") version "2.8.5" apply false
 }
