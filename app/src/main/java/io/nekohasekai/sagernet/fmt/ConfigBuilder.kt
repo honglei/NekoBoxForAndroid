@@ -486,6 +486,17 @@ fun buildConfig(
             tagMap[key] = buildChain(key, p)
         }
 
+        // WireGuard requires a real destination for UDP, including FakeDNS
+        // addresses. Let the native resolve action restore it before routing.
+        if (!forTest && !DataStore.resolveDestination && endpoints.any { it is Endpoint_WireGuardOptions }) {
+            route.rules.add(Rule_DefaultOptions().apply {
+                inbound = if (isVPN) listOf("tun-in", TAG_MIXED) else listOf(TAG_MIXED)
+                network = listOf("udp")
+                action = "resolve"
+                strategy = genDomainStrategy(true)
+            })
+        }
+
         // apply user rules
         for (rule in extraRules) {
             if (rule.packages.isNotEmpty()) {
